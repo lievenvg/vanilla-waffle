@@ -1,0 +1,7 @@
+# Node / tooling cache
+node_modules/
+# Postman scratch
+*.postman_environment.local.json
+# OS & editor junk
+.DS_Store
+*.swp
