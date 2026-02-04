@@ -1,24 +1,349 @@
 {
   "info": {
-    "name": "My API",
+    "_postman_id": "7c9a1a54-0c1a-4e6b-8da1-postman-echo-basic",
+    "name": "Postman Echo – Basic Tests",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_postman_id": "11111111-2222-3333-4444-555555555555"
+    "description": "Basis Postman-collectie die dummy endpoints van Postman Echo test."
   },
   "item": [
     {
-      "name": "Healthcheck",
-      "request": {
-        "method": "GET",
-        "header": [
-          { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
-        ],
-        "url": {
-          "raw": "{{baseUrl}}/health",
-          "host": [ "{{baseUrl}}" ],
-          "path": [ "health" ]
+      "name": "GET – Query & Headers",
+      "item": [
+        {
+          "name": "GET /get met query foo={{foo}}",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Request-Id",
+                "value": "{{reqId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/get?foo={{foo}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "get"
+              ],
+              "query": [
+                {
+                  "key": "foo",
+                  "value": "{{foo}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.withBody; pm.response.to.be.json; });",
+                  "pm.test('Response time < 1500 ms', function () { pm.expect(pm.response.responseTime).to.be.below(1500); });",
+                  "pm.test('Query parameter terug te vinden', function () {\n  const json = pm.response.json();\n  pm.expect(json.args.foo).to.eql(pm.environment.get('foo'));\n});",
+                  "pm.test('X-Request-Id header werd verstuurd', function () {\n  const reqHeaders = request.headers.map(h => h.key.toLowerCase());\n  pm.expect(reqHeaders).to.include('x-request-id');\n});"
+                ]
+              }
+            }
+          ]
         }
-      },
-      "response": []
+      ]
+    },
+    {
+      "name": "POST – Body & Echo",
+      "item": [
+        {
+          "name": "POST /post JSON body",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Request-Id",
+                "value": "{{reqId}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id\": \"{{reqId}}\", \"name\": \"Echo Demo\", \"active\": true, \"tags\": [\"basic\", \"test\"]}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/post",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "post"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.withBody; pm.response.to.be.json; });",
+                  "pm.test('Response time < 1500 ms', function () { pm.expect(pm.response.responseTime).to.be.below(1500); });",
+                  "pm.test('Body werd gereflecteerd', function () {\n  const json = pm.response.json();\n  pm.expect(json.json).to.be.an('object');\n  pm.expect(json.json.name).to.eql('Echo Demo');\n});",
+                  "pm.test('Content-Type header correct', function () {\n  const json = pm.response.json();\n  pm.expect(json.headers['content-type']).to.match(/application\\/json/i);\n});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "AUTH – Basic",
+      "item": [
+        {
+          "name": "GET /basic-auth (200 bij juiste credentials)",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/basic-auth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "basic-auth"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.withBody; pm.response.to.be.json; });",
+                  "pm.test('Authenticated == true', function () {\n  const json = pm.response.json();\n  pm.expect(json.authenticated).to.be.true;\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /basic-auth (401 bij foute credentials)",
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "wrong",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "creds",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/basic-auth",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "basic-auth"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UTIL – Status & Delay",
+      "item": [
+        {
+          "name": "GET /status/:code (verwacht {{expectStatus}})",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/status/{{expectStatus}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "status",
+                "{{expectStatus}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is zoals verwacht', function () {\n  pm.response.to.have.status(Number(pm.environment.get('expectStatus')));\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /delay/:n (wachttijd {{delaySec}}s)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/delay/{{delaySec}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "delay",
+                "{{delaySec}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.withBody; pm.response.to.be.json; });",
+                  "pm.test('Delay niet groter dan opgegeven + 1s marge', function () {\n  const expected = Number(pm.environment.get('delaySec')) * 1000 + 1000;\n  pm.expect(pm.response.responseTime).to.be.below(expected);\n});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "COOKIES – Set & Get",
+      "item": [
+        {
+          "name": "GET /cookies/set?session=abc123",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/cookies/set?session=abc123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cookies",
+                "set"
+              ],
+              "query": [
+                {
+                  "key": "session",
+                  "value": "abc123"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 302 of 200 (afhankelijk van redirect handling)', function () {\n  pm.expect([200,302]).to.include(pm.response.code);\n});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /cookies (controleer cookie terugkomst)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/cookies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "cookies"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Response is JSON', function () { pm.response.to.be.withBody; pm.response.to.be.json; });",
+                  "pm.test('Cookie session == abc123', function () {\n  const json = pm.response.json();\n  pm.expect(json.cookies.session).to.eql('abc123');\n});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Zet een unieke X-Request-Id header variabele voor alle requests",
+          "pm.variables.set('reqId', pm.environment.get('requestId') || pm.collectionVariables.get('requestId') || pm.variables.replaceIn('{{$guid}}'));"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Standaard post-request validaties kunnen hier toegevoegd worden"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "requestId",
+      "value": "{{$guid}}"
     }
   ]
 }
