@@ -18,7 +18,7 @@ on:
 
 jobs:
   call-shared-postman:
-    uses: lievenvg/silver-waffle/.github/workflows/postman-shared.yml@v1
+    uses: lievenvg/silver-waffle/.github/workflows/postman-shared.yml@v0.0.1
     with:
       environment: ${{ github.event.inputs.environment || 'dev' }}
       collection_path: ${{ github.event.inputs.collection_path || 'postman/collections/my-api.postman_collection.json' }}
