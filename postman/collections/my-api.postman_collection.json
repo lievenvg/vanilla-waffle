@@ -1,0 +1,24 @@
+{
+  "info": {
+    "name": "My API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "11111111-2222-3333-4444-555555555555"
+  },
+  "item": [
+    {
+      "name": "Healthcheck",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "x-api-key", "value": "{{apiKey}}", "type": "text" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [ "{{baseUrl}}" ],
+          "path": [ "health" ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
