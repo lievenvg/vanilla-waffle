@@ -1,0 +1,29 @@
+name: CI - Postman via Shared Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Doelomgeving (dev|tst|prd)'
+        required: true
+        default: 'dev'
+      collection_path:
+        description: 'Pad naar Postman collectie'
+        required: true
+        default: 'postman/collections/my-api.postman_collection.json'
+
+jobs:
+  call-shared-postman:
+    uses: lievenvg/workflows/.github/workflows/postman-shared.yml@v1
+    with:
+      environment: ${{ github.event.inputs.environment || 'dev' }}
+      collection_path: ${{ github.event.inputs.collection_path || 'postman/collections/my-api.postman_collection.json' }}
+      environment_path: postman/environments/${{ github.event.inputs.environment || 'dev' }}.postman_environment.json
+      reporters: 'cli,junit,htmlextra'
+      fail_on_error: true
+    secrets:
+      API_KEY: ${{ secrets.API_KEY }}
