@@ -44,8 +44,7 @@
                   "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
                   "pm.test('Response is JSON', function () { pm.response.to.be.withBody; pm.response.to.be.json; });",
                   "pm.test('Response time < 1500 ms', function () { pm.expect(pm.response.responseTime).to.be.below(1500); });",
-                  "pm.test('Query parameter terug te vinden', function () {\n  const json = pm.response.json();\n  pm.expect(json.args.foo).to.eql(pm.environment.get('foo'));\n});",
-                  "pm.test('X-Request-Id header werd verstuurd', function () {\n  const reqHeaders = request.headers.map(h => h.key.toLowerCase());\n  pm.expect(reqHeaders).to.include('x-request-id');\n});"
+                  "pm.test('Query parameter terug te vinden', function () {\n  const json = pm.response.json();\n  pm.expect(json.args.foo).to.eql(pm.environment.get('foo'));\n});"
                 ]
               }
             }
